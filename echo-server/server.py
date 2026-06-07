@@ -4,7 +4,7 @@ import threading
 ids = [1, 2, 3, 4, 5]
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("127.0.0.1", 12345))
+server.bind(("0.0.0.0", 12345))
 server.listen(5)
 
 def cclient(client, addr):
