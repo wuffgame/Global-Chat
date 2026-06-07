@@ -1,7 +1,7 @@
 import socket
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("0.0.0.0", 12345))
+client.connect(("127.0.0.1", 12345))
 
 client.send("B0.1".encode())
 if client.recv(1024).decode() == "True":
