@@ -8,6 +8,11 @@ server.bind(("0.0.0.0", 12345))
 server.listen(5)
 
 def cclient(client, addr):
+    if not ids:
+        print("No free IDs!!!")
+        client.send("NO IDS".encode())
+        client.close()
+        return
     cid = ids[0]
     ids.remove(cid)
     if client.recv(1024).decode() == "B0.1":
@@ -21,13 +26,15 @@ def cclient(client, addr):
             data = client.recv(1024)
             if not data:
                 print(f"Disconnected with {addr}")
-                ids.insert(cid - 1, cid)
+                ids.append(cid)
+                ids.sort()
                 break
             print(f"Message from client with id {cid}: ", data.decode())
             client.send(data)
     except ConnectionResetError:
         print(f"Disconnected with {addr}")
-        ids.insert(cid - 1, cid)
+        ids.append(cid)
+        ids.sort()
         client.close()
     finally:
         client.close()
