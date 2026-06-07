@@ -1,0 +1,7 @@
+services:
+  server:
+    build: .
+    container_name: echo-server
+    ports:
+      - "12345:12345"
+    restart: unless-stopped
