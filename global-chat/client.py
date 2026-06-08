@@ -2,7 +2,7 @@ import socket
 import threading
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("127.0.0.1", 12345))
+client.connect(("37.114.46.89", 12345))
 
 username = input("Type your username: ")
 
