@@ -17,37 +17,39 @@ def broadcast(message):
                 clients.remove(client)
 
 def cclient(client, addr):
-    if client.recv(1024).decode() == "B0.2":
-        print(f"Connected with {addr}")
-        client.send("True".encode())
-    else:
-        print("Too old client version!!!")
-        client.send("False".encode())
-        client.close()
-
-    clients.append(client)
-
     try:
+        version = client.recv(1024).decode()
+
+        if version != "B0.2":
+            print(f"Rejected {addr}")
+            client.send("False".encode())
+            client.close()
+            return
+
+        client.send("True".encode())
+        print(f"Connected with {addr}")
+        broadcast(f"SYSTEM: Someone joined the chat".encode())
+
+        with lock:
+            clients.append(client)
+
         while True:
             data = client.recv(1024)
             if not data:
-                print(f"Disconnected with {addr}")
                 break
-            message = data
+
             print(data.decode())
-            broadcast(message)
+            broadcast(data)
 
     except ConnectionResetError:
-        print(f"Disconnected with {addr}")
-        with lock:
-            if client in clients:
-                clients.remove(client)
-        client.close()
+        pass
+
     finally:
         with lock:
             if client in clients:
                 clients.remove(client)
         client.close()
+        print(f"Disconnected {addr}")
 
 while True:
     client, addr = server.accept()

@@ -19,7 +19,8 @@ def receive():
             print(client.recv(1024).decode())
         except OSError:
             print("Disconnected with server!!!")
-            exit(0)
+            client.close()
+            break
 
 
 threading.Thread(target=receive, daemon=True).start()
