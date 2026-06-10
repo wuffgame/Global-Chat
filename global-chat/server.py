@@ -35,6 +35,7 @@ def cclient(client, addr):
         nick = client.recv(1024).decode()
         with lock:
             if nick not in nicks.values():
+                client.send("True".encode())
                 nicks[client] = nick
                 last_msg_time[client] = 0.0
             else:
