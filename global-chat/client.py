@@ -2,15 +2,22 @@ import socket
 import threading
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(("37.114.46.89", 12345))
+client.connect(("127.0.0.1", 12345))
 
 username = input("Type your username: ")
 
-client.send("B0.2".encode())
+client.send("B0.3".encode())
 if client.recv(1024).decode() == "True":
     print("Connected to server")
 else:
     print("Old version of client")
+    exit(0)
+client.send(username.encode())
+
+m = client.recv(1024).decode()
+if m == "This username is on chat!!! Please choose another!!!":
+    print(m)
+    client.close()
     exit(0)
 
 def receive():
@@ -27,5 +34,4 @@ threading.Thread(target=receive, daemon=True).start()
 
 while True:
     message = input("> ")
-    message = f"{username}: {message}"
     client.send(message.encode())
