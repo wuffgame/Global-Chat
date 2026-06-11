@@ -1,13 +1,23 @@
 import socket
 import threading
 import time
+import json
+import os
+from prompt_toolkit import prompt
+from prompt_toolkit.patch_stdout import patch_stdout
 
 clients = []
 lock = threading.Lock()
 nicks = {}
 last_msg_time = {}
+bans = []
+BansFile = "bans.json"
 
 cooldown_time = 2.0
+
+if os.path.exists(BansFile):
+    with open("bans.json", "r") as file:
+        bans = json.load(file)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 12345))
@@ -23,6 +33,10 @@ def broadcast(message):
 
 def cclient(client, addr):
     try:
+        client_ip = client.getpeername()[0]
+        if client_ip in bans:
+            client.send("You are banned from this server!!!")
+            client.close()
         version = client.recv(1024).decode()
 
         if version != "B0.3":
@@ -81,6 +95,37 @@ def cclient(client, addr):
         client.close()
         print(f"Disconnected {addr}")
 
+def inputs():
+    while True:
+        with patch_stdout():
+            command = prompt()
+            command_parts = command.split(maxsplit=1)
+            if command_parts[0] == "ban":
+                if command_parts[1] in nicks.values():
+                    client_id = [k for k, v in nicks.items() if v == command_parts[1]][0]
+                    client_ip = client_id.getpeername()[0]
+                    bans.append(client_ip)
+                    print(f"Banned {command_parts[1]}, with ip {client_ip}")
+                    client_id.close()
+                    with open(BansFile, "w") as file:
+                        json.dump(bans, file, indent=4)
+                else:
+                    print("This user is not on chat!!!")
+            if command_parts[0] == "unban":
+                if command_parts[1] in bans:
+                    bans.remove(command_parts[1])
+                    with open(BansFile, "w") as file:
+                        json.dump(bans, file, indent=4)
+                    print(f"Unbanned {command_parts[1]}")
+                else:
+                    print("This user is not banned!!!")
+            if command_parts[0] == "ban-list":
+                print(bans)
+
+            if command_parts[0] == "help":
+                print("Help")
+
+threading.Thread(target=inputs, daemon=True).start()
 while True:
     client, addr = server.accept()
     threading.Thread(target=cclient, args=(client, addr), daemon=True).start()

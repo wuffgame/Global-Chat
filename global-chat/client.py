@@ -1,5 +1,7 @@
 import socket
 import threading
+from prompt_toolkit import prompt
+from prompt_toolkit.patch_stdout import patch_stdout
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 12345))
@@ -33,5 +35,6 @@ def receive():
 threading.Thread(target=receive, daemon=True).start()
 
 while True:
-    message = input("> ")
-    client.send(message.encode())
+    with patch_stdout():
+        message = prompt("> ")
+        client.send(message.encode())
