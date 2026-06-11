@@ -39,7 +39,7 @@ def cclient(client, addr):
             client.close()
         version = client.recv(1024).decode()
 
-        if version != "B0.3":
+        if version != "B0.4":
             print(f"Rejected {addr}")
             client.send("False".encode())
             client.close()
@@ -121,9 +121,29 @@ def inputs():
                     print("This user is not banned!!!")
             if command_parts[0] == "ban-list":
                 print(bans)
+            if command_parts[0] == "kick":
+                if command_parts[1] in nicks.values():
+                    client_id = [k for k, v in nicks.items() if v == command_parts[1]][0]
+                    print(f"{command_parts[1]} has been kicked")
+                    client_id.close()
+            if command_parts[0] == "list":
+                n = []
+                for i in nicks.values():
+                    n.append(i)
+                print(f"Users on chat: {n}")
+            if command_parts[0] == "say":
+                if command_parts[1]:
+                    broadcast(f"SYSTEM: {command_parts[1]}".encode())
+                    print(f"SYSTEM: {command_parts[1]}")
 
             if command_parts[0] == "help":
-                print("Help")
+                print("# ban username - ban user ip")
+                print("# unban ip - unban ip")
+                print("# ban-list - show banned ip")
+                print("# kick username - kick user from chat")
+                print("# list - show users on chat")
+                print("# say message - send message on chat")
+                print("# help - show list of commands")
 
 threading.Thread(target=inputs, daemon=True).start()
 while True:

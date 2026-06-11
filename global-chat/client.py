@@ -1,5 +1,7 @@
 import socket
 import threading
+import time
+
 from prompt_toolkit import prompt
 from prompt_toolkit.patch_stdout import patch_stdout
 
@@ -8,7 +10,7 @@ client.connect(("127.0.0.1", 12345))
 
 username = input("Type your username: ")
 
-client.send("B0.3".encode())
+client.send("B0.4".encode())
 if client.recv(1024).decode() == "True":
     print("Connected to server")
 else:
@@ -31,10 +33,18 @@ def receive():
             client.close()
             break
 
+def send():
+    while True:
+        with patch_stdout():
+            message = prompt("> ")
+            client.send(message.encode())
+
 
 threading.Thread(target=receive, daemon=True).start()
+threading.Thread(target=send, daemon=True).start()
 
-while True:
-    with patch_stdout():
-        message = prompt("> ")
-        client.send(message.encode())
+try:
+    while True:
+        time.sleep(1)
+finally:
+    exit(0)
