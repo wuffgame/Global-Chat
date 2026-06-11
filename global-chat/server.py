@@ -84,6 +84,7 @@ def cclient(client, addr):
     except ConnectionResetError:
         pass
 
+
     finally:
         with lock:
             if client in clients:
