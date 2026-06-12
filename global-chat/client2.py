@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import os
 
 from prompt_toolkit import prompt
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -19,14 +20,14 @@ if client.recv(1024).decode() == "True":
     print("Connected to server")
 else:
     print("Old version of client")
-    exit(0)
+    os._exit(0)
 client.send(username.encode())
 
 m = client.recv(1024).decode()
 if m == "This username is on chat!!! Please choose another!!!":
     print(m)
     client.close()
-    exit(0)
+    os._exit(0)
 
 def receive():
     while True:
@@ -35,16 +36,13 @@ def receive():
         except OSError:
             print("Disconnected with server!!!")
             client.close()
-            break
+            os._exit(0)
 
 def send():
     while True:
-        try:
-            with patch_stdout():
-                message = prompt("> ")
-                client.send(message.encode())
-        except OSError:
-            print("Disconnected with server!!!")
+        with patch_stdout():
+            message = prompt("> ")
+            client.send(message.encode())
 
 
 threading.Thread(target=receive, daemon=True).start()
@@ -54,4 +52,4 @@ try:
     while True:
         time.sleep(1)
 finally:
-    exit(0)
+    os._exit(0)

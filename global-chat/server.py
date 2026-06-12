@@ -12,8 +12,9 @@ nicks = {}
 last_msg_time = {}
 bans = []
 BansFile = "bans.json"
-
+history = []
 cooldown_time = 2.0
+disconnect = []
 
 if os.path.exists(BansFile):
     with open("bans.json", "r") as file:
@@ -23,13 +24,23 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 12345))
 server.listen(1)
 
+
 def broadcast(message):
     with lock:
-        for client in clients:
+        if len(history) >= 10:
+            history.pop(0)
+        try:
+            decoded_msg = message.decode()
+        except:
+            decoded_msg = str(message)
+        messages = f"{decoded_msg}\n"
+        history.append(messages.encode())
+        for cl in list(clients):
             try:
-                client.send(message)
+                cl.send(message)
             except:
-                clients.remove(client)
+                if cl in clients:
+                    clients.remove(cl)
 
 def cclient(client, addr):
     try:
@@ -62,9 +73,17 @@ def cclient(client, addr):
         with lock:
             clients.append(client)
 
+        for i in history:
+            client.send(i)
+
         while True:
-            data = client.recv(1024)
-            if not data:
+            if client in disconnect:
+                break
+            try:
+                data = client.recv(1024)
+                if not data:
+                    break
+            except:
                 break
 
             current_time = time.time()
@@ -88,14 +107,24 @@ def cclient(client, addr):
 
     finally:
         with lock:
+            user_nick = nicks.get(client, "Unknown")
             if client in clients:
                 clients.remove(client)
             if client in nicks:
                 del nicks[client]
             if client in last_msg_time:
                 del last_msg_time[client]
-        client.close()
-        print(f"Disconnected {addr}")
+            if client in disconnect:
+                msg = f"SYSTEM: {user_nick} has been kicked/banned from the chat"
+                disconnect.remove(client)
+            else:
+                msg = f"SYSTEM: {user_nick} leave the chat"
+        broadcast(msg.encode())
+        try:
+            client.close()
+        except:
+            pass
+        print(f"Disconnected {user_nick}")
 
 def inputs():
     while True:
@@ -108,6 +137,7 @@ def inputs():
                     client_ip = client_id.getpeername()[0]
                     bans.append(client_ip)
                     print(f"Banned {command_parts[1]}, with ip {client_ip}")
+                    disconnect.append(client_id)
                     client_id.close()
                     with open(BansFile, "w") as file:
                         json.dump(bans, file, indent=4)
@@ -127,6 +157,7 @@ def inputs():
                 if command_parts[1] in nicks.values():
                     client_id = [k for k, v in nicks.items() if v == command_parts[1]][0]
                     print(f"{command_parts[1]} has been kicked")
+                    disconnect.append(client_id)
                     client_id.close()
             if command_parts[0] == "list":
                 n = []
