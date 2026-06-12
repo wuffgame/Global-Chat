@@ -8,9 +8,13 @@ from prompt_toolkit.patch_stdout import patch_stdout
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("127.0.0.1", 12345))
 
+print("IMPORTANT!!! Chat doesn't have a login system, so anyone can use any username they want, including yours or your friend's when you're inactive. Please don't trust what others say until you verify it through Slack or Discord. I plan to implement such a system someday, but it's currently unavailable!!!")
 username = input("Type your username: ")
 
-client.send("B0.4".encode())
+if client.recv(1024).decode() == "You are banned from this server!!!":
+    print("You are banned from this server!!!")
+
+client.send("B0.5".encode())
 if client.recv(1024).decode() == "True":
     print("Connected to server")
 else:
@@ -35,9 +39,12 @@ def receive():
 
 def send():
     while True:
-        with patch_stdout():
-            message = prompt("> ")
-            client.send(message.encode())
+        try:
+            with patch_stdout():
+                message = prompt("> ")
+                client.send(message.encode())
+        except OSError:
+            print("Disconnected with server!!!")
 
 
 threading.Thread(target=receive, daemon=True).start()

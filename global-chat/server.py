@@ -21,7 +21,7 @@ if os.path.exists(BansFile):
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", 12345))
-server.listen(5)
+server.listen(1)
 
 def broadcast(message):
     with lock:
@@ -35,11 +35,12 @@ def cclient(client, addr):
     try:
         client_ip = client.getpeername()[0]
         if client_ip in bans:
-            client.send("You are banned from this server!!!")
+            client.send("You are banned from this server!!!".encode())
             client.close()
+        client.send("True".encode())
         version = client.recv(1024).decode()
 
-        if version != "B0.4":
+        if version != "B0.5":
             print(f"Rejected {addr}")
             client.send("False".encode())
             client.close()
