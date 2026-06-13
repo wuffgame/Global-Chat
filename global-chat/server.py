@@ -33,7 +33,7 @@ def broadcast(message):
             decoded_msg = message.decode()
         except:
             decoded_msg = str(message)
-        messages = f"{decoded_msg}\n"
+        messages = f"\n{decoded_msg}"
         history.append(messages.encode())
         for cl in list(clients):
             try:
