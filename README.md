@@ -55,7 +55,7 @@ GG now you can write with someone!!!
    ```
 3. Ready, enjoy using it!!!
 
-Enter docker container using `docker attach global-chat` 
+Enter docker container using `docker attach global-chat` (do not use ctrl+c)
 
 GG your server is ready!!
 
