@@ -3,8 +3,6 @@ import threading
 import time
 import os
 
-os.environ["PROMPT_TOOLKIT_NO_CPR"] = "1"
-
 from prompt_toolkit import prompt
 from prompt_toolkit.patch_stdout import patch_stdout
 
