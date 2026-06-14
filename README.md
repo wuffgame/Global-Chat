@@ -2,7 +2,7 @@
 
 Global chat available to everyone. Chat with anyone on Earth and exchange messages using Terminal/CMD now!
 
-![globalchat.png](assets/global-chat.png)
+![globalchat.gif](assets/global-chat.gif)
 
 ## Features
 
@@ -11,6 +11,8 @@ Global chat available to everyone. Chat with anyone on Earth and exchange messag
 - **Anti-Spam Protection** – Built-in message cooldowns to keep the chat clean and readable
 - **Robust Moderation** – Complete server-side control with built-in commands to ban users by IP, kick, or view the online list
 - **Chat History** – New users automatically receive the last 10 messages upon joining so they never lose context
+
+![globalchat.png](assets/global-chat.png)
 
 ## **Installation Guide CLIENT**
 
