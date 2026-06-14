@@ -5,3 +5,5 @@ services:
     ports:
       - "12345:12345"
     restart: unless-stopped
+    stdin_open: true
+    tty: true
